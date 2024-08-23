@@ -55,26 +55,32 @@ class FirebaseServiceImpl : FirebaseService {
     }
 
     override suspend fun updateEmail(newEmail: String): Boolean {
-        TODO("Not yet implemented")
+        getCurrentUser()?.verifyBeforeUpdateEmail(newEmail)?.await()
+        return true
     }
 
     override suspend fun updatePassword(newPassword: String): Boolean {
-        TODO("Not yet implemented")
+        getCurrentUser()?.updatePassword(newPassword)?.await()
+        return true
     }
 
     override fun requestChangePasswordByEmail(): Boolean {
-        TODO("Not yet implemented")
+        getCurrentUser()?.email?.let {
+            firebaseAuth.sendPasswordResetEmail(it)
+        }
+        return true
     }
 
     override fun doLogout(): Boolean {
-        TODO("Not yet implemented")
+        firebaseAuth.signOut()
+        return true
     }
 
     override fun isLoggedIn(): Boolean {
-        TODO("Not yet implemented")
+        return getCurrentUser() != null
     }
 
     override fun getCurrentUser(): FirebaseUser? {
-        TODO("Not yet implemented")
+        return firebaseAuth.currentUser
     }
 }

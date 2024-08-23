@@ -8,6 +8,6 @@ Written with love by Muhammad Hermas Yuda Pamungkas
 Github : https://github.com/hermasyp
  **/
 class SplashViewModel(private val repository: UserRepository) : ViewModel() {
-
+    fun isLoggedIn() = repository.isLoggedIn()
 
 }

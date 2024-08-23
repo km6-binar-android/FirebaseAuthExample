@@ -3,27 +3,41 @@ package com.catnip.firebaseauthexample.presentation.register
 import android.content.Intent
 import android.os.Bundle
 import android.util.Patterns
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.catnip.firebaseauthexample.R
+import com.catnip.firebaseauthexample.data.datasource.AuthDataSource
+import com.catnip.firebaseauthexample.data.datasource.FirebaseAuthDataSource
+import com.catnip.firebaseauthexample.data.repository.UserRepository
+import com.catnip.firebaseauthexample.data.repository.UserRepositoryImpl
+import com.catnip.firebaseauthexample.data.source.firebase.FirebaseService
+import com.catnip.firebaseauthexample.data.source.firebase.FirebaseServiceImpl
 import com.catnip.firebaseauthexample.databinding.ActivityRegisterBinding
 import com.catnip.firebaseauthexample.presentation.login.LoginActivity
 import com.catnip.firebaseauthexample.presentation.main.MainActivity
+import com.catnip.firebaseauthexample.utils.GenericViewModelFactory
 import com.catnip.firebaseauthexample.utils.highLightWord
+import com.catnip.firebaseauthexample.utils.proceedWhen
 import com.google.android.material.textfield.TextInputLayout
 
 class RegisterActivity : AppCompatActivity() {
     private val binding: ActivityRegisterBinding by lazy {
         ActivityRegisterBinding.inflate(layoutInflater)
     }
-
+    private val viewModel: RegisterViewModel by viewModels {
+        val service: FirebaseService = FirebaseServiceImpl()
+        val dataSource: AuthDataSource = FirebaseAuthDataSource(service)
+        val repo: UserRepository = UserRepositoryImpl(dataSource)
+        GenericViewModelFactory.create(RegisterViewModel(repo))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupForm()
         setClickListeners()
-        observeResult()
     }
 
     private fun setClickListeners() {
@@ -46,12 +60,33 @@ class RegisterActivity : AppCompatActivity() {
             val email = binding.layoutForm.etEmail.text.toString().trim()
             val password = binding.layoutForm.etPassword.text.toString().trim()
             val fullName = binding.layoutForm.etName.text.toString().trim()
-            //todo : do register
+            proceedRegister(email, password, fullName)
         }
     }
 
-    private fun observeResult() {
-       //todo : observe register result
+    private fun proceedRegister(email: String, password: String, fullName: String) {
+        viewModel.doRegister(email, fullName, password).observe(this) {
+            it.proceedWhen(
+                doOnSuccess = {
+                    binding.pbLoading.isVisible = false
+                    binding.btnRegister.isVisible = true
+                    navigateToMain()
+                },
+                doOnError = {
+                    binding.pbLoading.isVisible = false
+                    binding.btnRegister.isVisible = true
+                    Toast.makeText(
+                        this,
+                        "Login Failed : ${it.exception?.message.orEmpty()}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
+                doOnLoading = {
+                    binding.pbLoading.isVisible = true
+                    binding.btnRegister.isVisible = false
+                }
+            )
+        }
     }
 
     private fun navigateToMain() {

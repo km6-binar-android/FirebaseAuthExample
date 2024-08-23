@@ -37,7 +37,6 @@ class MainActivity : AppCompatActivity() {
         showUserData()
         setClickListeners()
         observeData()
-        throw RuntimeException("Test Crash")
     }
 
     private fun setClickListeners() {
