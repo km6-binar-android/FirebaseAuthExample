@@ -1,6 +1,6 @@
 package com.catnip.firebaseauthexample.data.repository
 
-import com.catnip.firebaseauthexample.data.network.firebase.auth.FirebaseAuthDataSource
+import com.catnip.firebaseauthexample.data.datasource.AuthDataSource
 
 /**
 Written with love by Muhammad Hermas Yuda Pamungkas
@@ -10,6 +10,6 @@ interface UserRepository {
 
 }
 
-class UserRepositoryImpl(private val dataSource: FirebaseAuthDataSource) : UserRepository {
+class UserRepositoryImpl(private val dataSource: AuthDataSource) : UserRepository {
 
 }
